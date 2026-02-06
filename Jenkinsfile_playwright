@@ -5,8 +5,8 @@ pipeline {
         PLAYWRIGHT_REPO = 'https://github.com/sjshin001/playwright_sutdy.git'
         PLAYWRIGHT_BRANCH = 'master'
         CI = 'true'
-        NODEJS_HOME = '/var/jenkins_home/tools/nodejs'
-        PATH = "/var/jenkins_home/tools/nodejs/bin:${env.PATH}"
+        NODEJS_HOME = '/tmp/nodejs'
+        PATH = "/tmp/nodejs/bin:${env.PATH}"
     }
 
     stages {
@@ -24,10 +24,8 @@ pipeline {
                     ARCH="linux-x64"
                     if [ ! -f "$NODEJS_HOME/bin/node" ]; then
                         echo "Installing Node.js ${NODE_VER}..."
-                        mkdir -p /var/jenkins_home/tools
-                        curl -fsSL "https://nodejs.org/dist/${NODE_VER}/node-${NODE_VER}-${ARCH}.tar.gz" | tar -xz
-                        mv "node-${NODE_VER}-${ARCH}" "$NODEJS_HOME"
-                        chmod -R +x "$NODEJS_HOME/bin"
+                        mkdir -p "$NODEJS_HOME"
+                        curl -fsSL "https://nodejs.org/dist/${NODE_VER}/node-${NODE_VER}-${ARCH}.tar.gz" | tar -xz --strip-components=1 -C "$NODEJS_HOME"
                     fi
                     node --version
                     npm --version
