@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        jdk 'JDK8'
-        maven 'Maven3'
-    }
-
     environment {
         SELENIUM_REPO = 'https://github.com/sjshin001/ssj_test_selenium.git'
         SELENIUM_BRANCH = 'master'
