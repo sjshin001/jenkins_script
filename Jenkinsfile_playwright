@@ -5,8 +5,8 @@ pipeline {
         PLAYWRIGHT_REPO = 'https://github.com/sjshin001/playwright_sutdy.git'
         PLAYWRIGHT_BRANCH = 'master'
         CI = 'true'
-        NODEJS_HOME = "${WORKSPACE}/.node"
-        PATH = "${WORKSPACE}/.node/bin:${env.PATH}"
+        NODEJS_HOME = '/var/jenkins_home/tools/nodejs'
+        PATH = "/var/jenkins_home/tools/nodejs/bin:${env.PATH}"
     }
 
     stages {
