@@ -15,21 +15,17 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Install & Test') {
             steps {
-                sh 'npm install --ignore-optional'
-            }
-        }
-
-        stage('Install Playwright Browsers') {
-            steps {
-                sh 'npx playwright install --with-deps chromium'
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                sh 'npx playwright test'
+                script {
+                    docker.image('node:20').inside {
+                        sh 'node --version'
+                        sh 'npm --version'
+                        sh 'npm install --ignore-optional'
+                        sh 'npx playwright install --with-deps chromium'
+                        sh 'npx playwright test'
+                    }
+                }
             }
             post {
                 always {
