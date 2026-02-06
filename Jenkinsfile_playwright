@@ -2,9 +2,12 @@ pipeline {
     agent any
 
     environment {
-        PLAYWRIGHT_REPO = 'https://github.com/jyjpf/playwright_sutdy.git'
-        PLAYWRIGHT_BRANCH = 'main'
+        PLAYWRIGHT_REPO = 'https://github.com/sjshin001/playwright_sutdy.git'
+        PLAYWRIGHT_BRANCH = 'master'
         CI = 'true'
+        // nvm으로 설치한 Node.js 경로를 PATH에 추가
+        NVM_DIR = "${env.HOME}/.nvm"
+        NODE_VERSION = '20'
     }
 
     stages {
@@ -15,25 +18,53 @@ pipeline {
             }
         }
 
+        stage('Install Node.js') {
+            steps {
+                sh '''
+                    # nvm이 없으면 설치
+                    if [ ! -d "$NVM_DIR" ]; then
+                        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+                    fi
+                    # nvm 로드 후 Node.js 설치
+                    . "$NVM_DIR/nvm.sh"
+                    nvm install $NODE_VERSION
+                    nvm use $NODE_VERSION
+                    node --version
+                    npm --version
+                '''
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
-                sh 'npm ci'
+                sh '''
+                    . "$NVM_DIR/nvm.sh"
+                    nvm use $NODE_VERSION
+                    npm ci
+                '''
             }
         }
 
         stage('Install Playwright Browsers') {
             steps {
-                sh 'npx playwright install --with-deps chromium'
+                sh '''
+                    . "$NVM_DIR/nvm.sh"
+                    nvm use $NODE_VERSION
+                    npx playwright install --with-deps chromium
+                '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'npx playwright test'
+                sh '''
+                    . "$NVM_DIR/nvm.sh"
+                    nvm use $NODE_VERSION
+                    npx playwright test
+                '''
             }
             post {
                 always {
-                    // Playwright HTML 리포트 아카이브
                     publishHTML(target: [
                         reportDir: 'playwright-report',
                         reportFiles: 'index.html',
