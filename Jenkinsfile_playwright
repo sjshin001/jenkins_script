@@ -1,0 +1,60 @@
+pipeline {
+    agent any
+
+    environment {
+        PLAYWRIGHT_REPO = 'https://github.com/jyjpf/playwright_sutdy.git'
+        PLAYWRIGHT_BRANCH = 'main'
+        CI = 'true'
+    }
+
+    stages {
+        stage('Checkout Playwright Project') {
+            steps {
+                cleanWs()
+                git url: "${PLAYWRIGHT_REPO}", branch: "${PLAYWRIGHT_BRANCH}"
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm ci'
+            }
+        }
+
+        stage('Install Playwright Browsers') {
+            steps {
+                sh 'npx playwright install --with-deps chromium'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh 'npx playwright test'
+            }
+            post {
+                always {
+                    // Playwright HTML 리포트 아카이브
+                    publishHTML(target: [
+                        reportDir: 'playwright-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Playwright Report',
+                        keepAll: true,
+                        alwaysLinkToLastBuild: true
+                    ])
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Playwright tests completed successfully!'
+        }
+        failure {
+            echo 'Playwright tests failed!'
+        }
+        always {
+            cleanWs()
+        }
+    }
+}
