@@ -24,7 +24,7 @@ pipeline {
                     ARCH="linux-x64"
                     if [ ! -f "$NODEJS_HOME/bin/node" ]; then
                         echo "Installing Node.js ${NODE_VER}..."
-                        curl -fsSL "https://nodejs.org/dist/${NODE_VER}/node-${NODE_VER}-${ARCH}.tar.xz" | tar -xJ
+                        curl -fsSL "https://nodejs.org/dist/${NODE_VER}/node-${NODE_VER}-${ARCH}.tar.gz" | tar -xz
                         mv "node-${NODE_VER}-${ARCH}" "$NODEJS_HOME"
                     fi
                     node --version
