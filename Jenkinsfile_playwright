@@ -5,9 +5,8 @@ pipeline {
         PLAYWRIGHT_REPO = 'https://github.com/sjshin001/playwright_sutdy.git'
         PLAYWRIGHT_BRANCH = 'master'
         CI = 'true'
-        // nvm으로 설치한 Node.js 경로를 PATH에 추가
-        NVM_DIR = "${env.HOME}/.nvm"
-        NODE_VERSION = '20'
+        NODEJS_HOME = "${WORKSPACE}/.node"
+        PATH = "${WORKSPACE}/.node/bin:${env.PATH}"
     }
 
     stages {
@@ -21,14 +20,13 @@ pipeline {
         stage('Install Node.js') {
             steps {
                 sh '''
-                    # nvm이 없으면 설치
-                    if [ ! -d "$NVM_DIR" ]; then
-                        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+                    NODE_VER="v20.18.1"
+                    ARCH="linux-x64"
+                    if [ ! -f "$NODEJS_HOME/bin/node" ]; then
+                        echo "Installing Node.js ${NODE_VER}..."
+                        curl -fsSL "https://nodejs.org/dist/${NODE_VER}/node-${NODE_VER}-${ARCH}.tar.xz" | tar -xJ
+                        mv "node-${NODE_VER}-${ARCH}" "$NODEJS_HOME"
                     fi
-                    # nvm 로드 후 Node.js 설치
-                    . "$NVM_DIR/nvm.sh"
-                    nvm install $NODE_VERSION
-                    nvm use $NODE_VERSION
                     node --version
                     npm --version
                 '''
@@ -37,31 +35,19 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh '''
-                    . "$NVM_DIR/nvm.sh"
-                    nvm use $NODE_VERSION
-                    npm ci
-                '''
+                sh 'npm ci'
             }
         }
 
         stage('Install Playwright Browsers') {
             steps {
-                sh '''
-                    . "$NVM_DIR/nvm.sh"
-                    nvm use $NODE_VERSION
-                    npx playwright install --with-deps chromium
-                '''
+                sh 'npx playwright install --with-deps chromium'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh '''
-                    . "$NVM_DIR/nvm.sh"
-                    nvm use $NODE_VERSION
-                    npx playwright test
-                '''
+                sh 'npx playwright test'
             }
             post {
                 always {
