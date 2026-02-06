@@ -26,6 +26,7 @@ pipeline {
                         echo "Installing Node.js ${NODE_VER}..."
                         curl -fsSL "https://nodejs.org/dist/${NODE_VER}/node-${NODE_VER}-${ARCH}.tar.gz" | tar -xz
                         mv "node-${NODE_VER}-${ARCH}" "$NODEJS_HOME"
+                        chmod -R +x "$NODEJS_HOME/bin"
                     fi
                     node --version
                     npm --version
