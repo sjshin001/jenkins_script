@@ -17,13 +17,13 @@ pipeline {
 
         stage('Build') {
             steps {
-                bat 'mvn clean compile -DskipTests'
+                sh 'mvn clean compile -DskipTests'
             }
         }
 
         stage('Test') {
             steps {
-                bat 'mvn test'
+                sh 'mvn test'
             }
             post {
                 always {
