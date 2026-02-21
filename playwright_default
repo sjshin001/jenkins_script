@@ -16,7 +16,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo "TEST_ID: ${params.TEST_ID}"
-                echo "TEST_PASSWORD length: ${params.TEST_PASSWORD?.length()}"
+                echo "TEST_PASSWORD exists: ${params.TEST_PASSWORD ? 'YES' : 'NO'}"
                 git branch: 'master',
                     url: 'https://github.com/sjshin001/playwright_sutdy.git'
             }
