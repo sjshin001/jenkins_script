@@ -1,0 +1,56 @@
+pipeline {
+    agent { label 'node-qa' }
+
+    tools {
+        nodejs 'node20'
+    }
+
+    parameters {
+        string(name: 'TEST_ID', defaultValue: '', description: 'Kurly 로그인 ID')
+        password(name: 'TEST_PASSWORD', defaultValue: '', description: 'Kurly 로그인 비밀번호')
+        password(name: 'KURLY_PAY_PASSWORD', defaultValue: '', description: 'Kurly Pay 비밀번호')
+        password(name: 'PAYCO_PIN', defaultValue: '', description: 'Payco PIN 번호')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'master',
+                    url: 'https://github.com/sjshin001/playwright_sutdy.git'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                bat 'npm install'
+                bat 'npx playwright install'
+            }
+        }
+
+        stage('Run Playwright Tests') {
+            steps {
+                bat """
+                set TEST_ID=%TEST_ID%
+                set TEST_PASSWORD=%TEST_PASSWORD%
+                set KURLY_PAY_PASSWORD=%KURLY_PAY_PASSWORD%
+                set PAYCO_PIN=%PAYCO_PIN%
+                set CI=true
+                npx playwright test
+                """
+            }
+        }
+    }
+
+    post {
+        always {
+            publishHTML(target: [
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'playwright-report',
+                reportFiles: 'index.html',
+                reportName: 'Playwright Test Report'
+            ])
+        }
+    }
+}
