@@ -31,18 +31,21 @@ pipeline {
 
         stage('Run Playwright Tests') {
             steps {
-                script {
-                    env.TEST_ID = params.TEST_ID
-                    env.TEST_PASSWORD = params.TEST_PASSWORD
-                    env.KURLY_PAY_PASSWORD = params.KURLY_PAY_PASSWORD
-                    env.PAYCO_PIN = params.PAYCO_PIN
-                    env.CI = "true"
-                }
+                withCredentials([
+                    string(credentialsId: 'kurly-password', variable: 'TEST_PASSWORD')
+                ]) {
+                    script {
+                        env.TEST_ID = params.TEST_ID
+                        env.KURLY_PAY_PASSWORD = params.KURLY_PAY_PASSWORD
+                        env.PAYCO_PIN = params.PAYCO_PIN
+                        env.CI = "true"
+                    }
         
-                bat '''
-                echo TEST_PASSWORD=%TEST_PASSWORD%
-                npx playwright test
-                '''
+                    bat '''
+                    echo TEST_PASSWORD=%TEST_PASSWORD%
+                    npx playwright test
+                    '''
+                }
             }
         }
     }
