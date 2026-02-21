@@ -7,9 +7,9 @@ pipeline {
 
     parameters {
         string(name: 'TEST_ID', defaultValue: '', description: 'Kurly 로그인 ID')
-        password(name: 'TEST_PASSWORD', defaultValue: '', description: 'Kurly 로그인 비밀번호')
-        password(name: 'KURLY_PAY_PASSWORD', defaultValue: '', description: 'Kurly Pay 비밀번호')
-        password(name: 'PAYCO_PIN', defaultValue: '', description: 'Payco PIN 번호')
+        password(name: 'TEST_PASSWORD', defaultValue: '', description: 'Kurly 로그인 PW')
+        password(name: 'KURLY_PAY_PASSWORD', defaultValue: '', description: 'Kurly Pay PW')
+        password(name: 'PAYCO_PIN', defaultValue: '', description: 'Payco PIN')
     }
 
     stages {
@@ -29,14 +29,15 @@ pipeline {
 
         stage('Run Playwright Tests') {
             steps {
-                bat """
-                set TEST_ID=%TEST_ID%
-                set TEST_PASSWORD=%TEST_PASSWORD%
-                set KURLY_PAY_PASSWORD=%KURLY_PAY_PASSWORD%
-                set PAYCO_PIN=%PAYCO_PIN%
-                set CI=true
-                npx playwright test
-                """
+                withEnv([
+                    "TEST_ID=${params.TEST_ID}",
+                    "TEST_PASSWORD=${params.TEST_PASSWORD}",
+                    "KURLY_PAY_PASSWORD=${params.KURLY_PAY_PASSWORD}",
+                    "PAYCO_PIN=${params.PAYCO_PIN}",
+                    "CI=true"
+                ]) {
+                    bat 'npx playwright test'
+                }
             }
         }
     }
